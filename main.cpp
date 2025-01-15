@@ -62,34 +62,5 @@ void outputsInit()
 
 void uartTask()
 {
-    char receivedChar = '\0';
-    if( uartUsb.readable() ) {
-        uartUsb.read( &receivedChar, 1 );
-        switch (receivedChar) {
-        case '1':
-
-            break;
-
-        case '2':
-
-            break;
-
-        case '3':
-
-            break;
-            
-        case '4':
-                
-            break;
-
-        case '5':
-
-            break;
-
-        default:
-
-            break;
-
-        }
-    }
+    
 }
