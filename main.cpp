@@ -31,7 +31,8 @@ UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
 void inputsInit();
 void outputsInit();
 
-void uartTask();
+void driverCheck();
+void seatbeltCheck();
 
 //=====[Main function, the program entry point after power on or reset]========
 
@@ -44,14 +45,10 @@ int main()
     while (true) {
 
         // Checks if Driver is in the seat
-        if (driverInSeat && !driverSeated) {
-            uartUsb.write("Welcome to enhanced alarm system model 218-W24\n", 47);
-            driverSeated = true;
-        } 
+        driverCheck();
 
-        if (!driverInSeat) {
-            driverSeated = false;
-        }
+        // Both seats occupied and seatbelts fastened
+        seatbeltCheck();
 
     }
 }
@@ -67,8 +64,25 @@ void inputsInit()
 void outputsInit()
 {
     ignition.mode(PullDown);
-    passengerInSeat.mode(PullDown);
     driverInSeat.mode(PullDown);
-    passengerSeatbelt.mode(PullDown);
     driverSeatbelt.mode(PullDown);
+}
+
+void driverCheck() {
+    if (driverInSeat && !driverSeated) {
+        uartUsb.write("Welcome to enhanced alarm system model 218-W24\n", 47);
+        driverSeated = true;
+    } 
+
+    if (!driverInSeat) {
+        driverSeated = false;
+    }
+}
+
+void seatbeltCheck() {
+    if (driverInSeat && passengerInSeat && driverSeatbelt && passengerSeatbelt) {
+        ignitionEnabled = ON;
+    } else {
+        ignitionEnabled = OFF;
+    }
 }
