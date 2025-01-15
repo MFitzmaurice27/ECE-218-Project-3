@@ -39,7 +39,7 @@ int main()
     outputsInit();
     while (true) {
         
-        uartTask();
+        
     }
 }
 
@@ -60,7 +60,4 @@ void outputsInit()
     driverSeatbelt.mode(PullDown);
 }
 
-void uartTask()
-{
-    
-}
+
