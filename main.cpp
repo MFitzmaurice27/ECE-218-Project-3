@@ -5,7 +5,8 @@
 
 //=====[Defines]===============================================================
 
-
+bool driverSeated;
+bool fail = false;
 
 //=====[Declaration and initialization of public global objects]===============
 
@@ -14,8 +15,6 @@ DigitalIn passengerInSeat(D4);
 DigitalIn driverInSeat(D5);
 DigitalIn passengerSeatbelt(D6);
 DigitalIn driverSeatbelt(D7);
-
-bool driverSeated;
 
 DigitalOut ignitionEnabled(LED1);
 DigitalOut engineStarted(LED2);
@@ -73,24 +72,22 @@ void outputsInit()
 {
     ignition.mode(PullDown);
     driverInSeat.mode(PullDown);
-    driverSeatbelt.mode(PullDown);
+    passengerInSeat.mode(PullDown);
 }
 
 void driverCheck() {
-    if (driverInSeat && !driverSeated) {
+    if (driverInSeat && !driverSeated && !fail && !engineStarted) {
         uartUsb.write("Welcome to enhanced alarm system model 218-W24\n", 47);
         driverSeated = true;
-        ignitionEnabled = ON;
     } 
 
     if (!driverInSeat) {
         driverSeated = false;
-        ignitionEnabled = OFF;
     }
 }
 
 void seatbeltCheck() {
-    if (driverInSeat && passengerInSeat && driverSeatbelt && passengerSeatbelt) {
+    if (driverInSeat && passengerInSeat && driverSeatbelt && passengerSeatbelt && !engineStarted) {
         ignitionEnabled = ON;
     } else {
         ignitionEnabled = OFF;
@@ -101,7 +98,8 @@ void engineStart() {
     if (ignitionEnabled == ON && ignition == ON) {
         engineStarted = ON;
         ignitionEnabled = OFF;
-    } else if (ignitionEnabled == OFF && ignition == ON) {
+        uartUsb.write("Engine Started\n", 15);
+    } else if (ignitionEnabled == OFF && ignition == ON && !engineStarted && !fail) {
         uartUsb.write("Ignition inhibited\n", 19);
 
         buzzer.output();
@@ -120,7 +118,9 @@ void engineStart() {
         }
 
         if (!driverSeatbelt) {
-            uartUsb.write("Passenger seatbelt not fastened\n", 29);
+            uartUsb.write("Driver seatbelt not fastened\n", 29);
         }
+
+        fail = true;
     }
 }
