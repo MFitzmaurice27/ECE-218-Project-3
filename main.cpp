@@ -15,6 +15,8 @@ DigitalIn driverInSeat(D5);
 DigitalIn passengerSeatbelt(D6);
 DigitalIn driverSeatbelt(D7);
 
+bool driverSeated;
+
 DigitalOut ignitionEnabled(LED1);
 DigitalOut engineStarted(LED2);
 
@@ -37,9 +39,20 @@ int main()
 {
     inputsInit();
     outputsInit();
+    driverSeated = false;
+
     while (true) {
-        
-        
+
+        // Checks if Driver is in the seat
+        if (driverInSeat && !driverSeated) {
+            uartUsb.write("Welcome to enhanced alarm system model 218-W24\n", 47);
+            driverSeated = true;
+        } 
+
+        if (!driverInSeat) {
+            driverSeated = false;
+        }
+
     }
 }
 
@@ -59,5 +72,3 @@ void outputsInit()
     passengerSeatbelt.mode(PullDown);
     driverSeatbelt.mode(PullDown);
 }
-
-
