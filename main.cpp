@@ -80,10 +80,12 @@ void driverCheck() {
     if (driverInSeat && !driverSeated) {
         uartUsb.write("Welcome to enhanced alarm system model 218-W24\n", 47);
         driverSeated = true;
+        ignitionEnabled = ON;
     } 
 
     if (!driverInSeat) {
         driverSeated = false;
+        ignitionEnabled = OFF;
     }
 }
 
