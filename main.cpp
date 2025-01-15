@@ -5,8 +5,6 @@
 
 //=====[Defines]===============================================================
 
-bool driverSeated;
-bool fail = false;
 
 //=====[Declaration and initialization of public global objects]===============
 
@@ -24,7 +22,8 @@ UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
 
 //=====[Declaration and initialization of public global variables]=============
 
-
+bool driverSeated;
+bool fail = false;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
