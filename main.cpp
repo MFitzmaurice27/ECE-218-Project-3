@@ -3,9 +3,6 @@
 #include "mbed.h"
 #include "arm_book_lib.h"
 
-//=====[Defines]===============================================================
-
-
 //=====[Declaration and initialization of public global objects]===============
 
 DigitalIn ignition(D3);
