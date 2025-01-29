@@ -14,7 +14,6 @@ DigitalIn driverSeatbelt(D7);
 DigitalOut ignitionEnabled(LED1);
 DigitalOut engineStarted(LED2);
 DigitalInOut buzzer(PE_10);
-DigitalInOut ignitionLed(PE_12);
 
 UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
 
@@ -63,9 +62,6 @@ void inputsInit()
 
     buzzer.mode(OpenDrain);
     buzzer.input();
-
-    ignitionLed.mode(OpenDrain);
-    ignitionLed.input();
 }
 
 void outputsInit()
