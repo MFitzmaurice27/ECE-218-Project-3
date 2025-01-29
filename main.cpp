@@ -95,10 +95,6 @@ void engineStart() {
         engineStarted = ON;
         ignitionEnabled = OFF;
         uartUsb.write("Engine Started\n", 15);
-
-        ignitionLed.output();
-        ignitionLed = LOW;
-        
     } else if (ignitionEnabled == OFF && ignition == ON && !engineStarted && !fail) {
         uartUsb.write("Ignition inhibited\n", 19);
 
