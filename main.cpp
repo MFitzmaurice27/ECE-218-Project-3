@@ -14,6 +14,7 @@ DigitalIn driverSeatbelt(D7);
 DigitalOut ignitionEnabled(LED1);
 DigitalOut engineStarted(LED2);
 DigitalInOut buzzer(PE_10);
+DigitalInOut ignitionLed(PE_12);
 
 UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
 
@@ -62,6 +63,9 @@ void inputsInit()
 
     buzzer.mode(OpenDrain);
     buzzer.input();
+
+    ignitionLed.mode(OpenDrain);
+    ignitionLed.input();
 }
 
 void outputsInit()
@@ -95,6 +99,10 @@ void engineStart() {
         engineStarted = ON;
         ignitionEnabled = OFF;
         uartUsb.write("Engine Started\n", 15);
+
+        ignitionLed.output();
+        ignitionLed = LOW;
+        
     } else if (ignitionEnabled == OFF && ignition == ON && !engineStarted && !fail) {
         uartUsb.write("Ignition inhibited\n", 19);
 
