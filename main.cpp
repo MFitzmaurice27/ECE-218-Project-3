@@ -20,7 +20,7 @@ UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
 //=====[Declaration and initialization of public global variables]=============
 
 bool driverSeated;
-bool fail = false;
+
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -30,6 +30,7 @@ void outputsInit();
 void driverCheck();
 void seatbeltCheck();
 void engineStart();
+void engineStop();
 
 //=====[Main function, the program entry point after power on or reset]========
 
@@ -49,6 +50,9 @@ int main()
 
         // Checks if engine can start
         engineStart();
+
+        // Stops engine if ignition is pressed and released
+        engineStop();
 
     }
 }
@@ -72,7 +76,7 @@ void outputsInit()
 }
 
 void driverCheck() {
-    if (driverInSeat && !driverSeated && !fail && !engineStarted) {
+    if (driverInSeat && !driverSeated && !engineStarted) {
         uartUsb.write("Welcome to enhanced alarm system model 218-W24\n", 47);
         driverSeated = true;
     } 
@@ -95,7 +99,10 @@ void engineStart() {
         engineStarted = ON;
         ignitionEnabled = OFF;
         uartUsb.write("Engine Started\n", 15);
-    } else if (ignitionEnabled == OFF && ignition == ON && !engineStarted && !fail) {
+
+        buzzer.input();
+        
+    } else if (ignitionEnabled == OFF && ignition == ON && !engineStarted) {
         uartUsb.write("Ignition inhibited\n", 19);
 
         buzzer.output();
@@ -116,7 +123,18 @@ void engineStart() {
         if (!driverSeatbelt) {
             uartUsb.write("Driver seatbelt not fastened\n", 29);
         }
+    }
+}
 
-        fail = true;
+void engineStop() {
+    bool stopButton = false;
+
+    if (engineStarted && ignition) {
+        stopButton = true;
+    }
+
+    if (engineStarted && stopButton && !ignition) {
+        engineStarted = false;
+        stopButton = false;
     }
 }
