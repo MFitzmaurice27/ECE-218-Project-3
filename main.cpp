@@ -12,8 +12,8 @@ DigitalIn passengerInSeat(D4);
 DigitalIn driverInSeat(D5);
 DigitalIn passengerSeatbelt(D6);
 DigitalIn driverSeatbelt(D7);
-DigitalIn potentiometer(D3);
-DigitalIn lightResistor(D2);
+AnalogIn potentiometer(A0);
+AnalogIn lightResistor(A1);
 
 DigitalOut ignitionEnabled(LED1);
 DigitalOut engineStarted(LED2);
