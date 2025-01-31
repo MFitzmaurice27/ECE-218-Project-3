@@ -3,13 +3,17 @@
 #include "mbed.h"
 #include "arm_book_lib.h"
 
+#define NUM_READINGS        10
+
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalIn ignition(D3);
+DigitalIn ignition(BUTTON1);
 DigitalIn passengerInSeat(D4);
 DigitalIn driverInSeat(D5);
 DigitalIn passengerSeatbelt(D6);
 DigitalIn driverSeatbelt(D7);
+DigitalIn potentiometer(D3);
+DigitalIn lightResistor(D2);
 
 DigitalOut ignitionEnabled(LED1);
 DigitalOut engineStarted(LED2);
@@ -22,9 +26,10 @@ UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
 //=====[Declaration and initialization of public global variables]=============
 
 bool driverSeated;
-bool fail = false;
-bool engineOn = false;
-bool PreviousIgnition = false;
+int waitForStop = 0;
+
+float lightReadings[NUM_READINGS];
+int i = 0;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -35,7 +40,10 @@ void driverCheck();
 void seatbeltCheck();
 void engineStart();
 void engineStop();
-void lamps();
+void headlightUpdate();
+float lightSensorAvg();
+
+void lightSensorSample();
 
 //=====[Main function, the program entry point after power on or reset]========
 
@@ -56,12 +64,14 @@ int main()
         // Checks if engine can start
         engineStart();
 
-        //Checks if engine stops
+        // Stops engine if ignition is pressed and released
         engineStop();
 
-        //oparates lamps
-        lamps();
+        // Updates the state of the headlights
+        headlightUpdate();
 
+        // Takes a reading from the light resistor
+        lightSensorSample();
     }
 }
 
@@ -71,8 +81,6 @@ void inputsInit()
 {
     ignitionEnabled = OFF;
     engineStarted = OFF;
-    leftLowBeamLamp = OFF;
-    rightLowBeamLamp = OFF;
 
     buzzer.mode(OpenDrain);
     buzzer.input();
@@ -83,10 +91,12 @@ void outputsInit()
     ignition.mode(PullDown);
     driverInSeat.mode(PullDown);
     passengerInSeat.mode(PullDown);
+    driverSeatbelt.mode(PullDown);
+    passengerSeatbelt.mode(PullDown);
 }
 
 void driverCheck() {
-    if (driverInSeat && !driverSeated && !fail && !engineStarted) {
+    if (driverInSeat && !driverSeated && !engineStarted) {
         uartUsb.write("Welcome to enhanced alarm system model 218-W24\n", 47);
         driverSeated = true;
     } 
@@ -107,10 +117,14 @@ void seatbeltCheck() {
 void engineStart() {
     if (ignitionEnabled == ON && ignition == ON) {
         engineStarted = ON;
-        engineOn = true;
         ignitionEnabled = OFF;
         uartUsb.write("Engine Started\n", 15);
-    } else if (ignitionEnabled == OFF && ignition == ON && !engineStarted && !fail) {
+
+        buzzer.input();
+
+        waitForStop = 1;
+        
+    } else if (ignitionEnabled == OFF && ignition == ON && !engineStarted) {
         uartUsb.write("Ignition inhibited\n", 19);
 
         buzzer.output();
@@ -131,28 +145,74 @@ void engineStart() {
         if (!driverSeatbelt) {
             uartUsb.write("Driver seatbelt not fastened\n", 29);
         }
-
-        fail = true;
     }
 }
 
 void engineStop() {
-    if (engineOn && ignition == 0 && PreviousIgnition) {
-        engineStarted = OFF;
-        engineOn = false;
-        leftLowBeamLamp = OFF;
-        rightLowBeamLamp = OFF;
-        uartUsb.write("Engine Stopped\n, 14");
+    switch (waitForStop) {
+        case 1: 
+            if (!ignition) {
+                waitForStop = 2;
+            }
+            break;
+        case 2:
+            if (engineStarted && ignition) {
+                waitForStop = 3;
+            } 
+            break;
+        case 3:
+            if (engineStarted && waitForStop && !ignition) {
+                engineStarted = false;
+                waitForStop = 0;
+            }
+            break;
+        default: 
+            break;
     }
-    PreviousIgnition = ignition
 }
 
-void lamps() {
-    if (engineRunning && ignition == ON) {
-        leftLowBeamLamp = ON;
-        rightLowBeamLamp = ON;
-    } else if (!engineRunning) {
-        leftLowBeamLamp = OFF;
-        rightLowBeamLamp = OFF;
+void headlightUpdate() {
+    if (engineStarted == ON) {
+        if (potentiometer.read() < 0.33) {
+            leftLowBeamLamp = 0;
+            rightLowBeamLamp = 0;
+        } else if (potentiometer.read() >= 0.33 && potentiometer.read() < 0.66) {
+            if (lightSensorAvg() < .56) {
+                leftLowBeamLamp = 0;
+                rightLowBeamLamp = 0;
+            } else {
+                leftLowBeamLamp = 1;
+                rightLowBeamLamp = 1;
+            }
+        } else {
+            leftLowBeamLamp = 1;
+            rightLowBeamLamp = 1;
+        }
+    } else {
+        leftLowBeamLamp = 0;
+        rightLowBeamLamp = 0;
     }
+}
+
+void lightSensorSample() {
+    float lightReadingsTotal;
+    float lightReadingsAvg;
+
+    if (i == NUM_READINGS - 1) {
+        i = 0;
+    } else {
+        i++;
+    }
+
+    lightReadings[i] = lightResistor.read();
+}
+
+float lightSensorAvg() {
+    float total = 0;
+
+    for (int j = 0; j < NUM_READINGS; j++) {
+        total += lightReadings[j];
+    } 
+
+    return total / NUM_READINGS;
 }
