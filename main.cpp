@@ -13,6 +13,8 @@ DigitalIn driverSeatbelt(D7);
 
 DigitalOut ignitionEnabled(LED1);
 DigitalOut engineStarted(LED2);
+DigitalOut leftLowBeamLamp(D8);
+DigitalOut rightLowBeamLamp(D9);
 DigitalInOut buzzer(PE_10);
 
 UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
@@ -20,7 +22,9 @@ UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
 //=====[Declaration and initialization of public global variables]=============
 
 bool driverSeated;
-
+bool fail = false;
+bool engineOn = false;
+bool PreviousIgnition = false;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -31,6 +35,7 @@ void driverCheck();
 void seatbeltCheck();
 void engineStart();
 void engineStop();
+void lamps();
 
 //=====[Main function, the program entry point after power on or reset]========
 
@@ -51,8 +56,11 @@ int main()
         // Checks if engine can start
         engineStart();
 
-        // Stops engine if ignition is pressed and released
+        //Checks if engine stops
         engineStop();
+
+        //oparates lamps
+        lamps();
 
     }
 }
@@ -63,6 +71,8 @@ void inputsInit()
 {
     ignitionEnabled = OFF;
     engineStarted = OFF;
+    leftLowBeamLamp = OFF;
+    rightLowBeamLamp = OFF;
 
     buzzer.mode(OpenDrain);
     buzzer.input();
@@ -76,7 +86,7 @@ void outputsInit()
 }
 
 void driverCheck() {
-    if (driverInSeat && !driverSeated && !engineStarted) {
+    if (driverInSeat && !driverSeated && !fail && !engineStarted) {
         uartUsb.write("Welcome to enhanced alarm system model 218-W24\n", 47);
         driverSeated = true;
     } 
@@ -97,12 +107,10 @@ void seatbeltCheck() {
 void engineStart() {
     if (ignitionEnabled == ON && ignition == ON) {
         engineStarted = ON;
+        engineOn = true;
         ignitionEnabled = OFF;
         uartUsb.write("Engine Started\n", 15);
-
-        buzzer.input();
-        
-    } else if (ignitionEnabled == OFF && ignition == ON && !engineStarted) {
+    } else if (ignitionEnabled == OFF && ignition == ON && !engineStarted && !fail) {
         uartUsb.write("Ignition inhibited\n", 19);
 
         buzzer.output();
@@ -123,18 +131,28 @@ void engineStart() {
         if (!driverSeatbelt) {
             uartUsb.write("Driver seatbelt not fastened\n", 29);
         }
+
+        fail = true;
     }
 }
 
 void engineStop() {
-    bool stopButton = false;
-
-    if (engineStarted && ignition) {
-        stopButton = true;
+    if (engineOn && ignition == 0 && PreviousIgnition) {
+        engineStarted = OFF;
+        engineOn = false;
+        leftLowBeamLamp = OFF;
+        rightLowBeamLamp = OFF;
+        uartUsb.write("Engine Stopped\n, 14");
     }
+    PreviousIgnition = ignition
+}
 
-    if (engineStarted && stopButton && !ignition) {
-        engineStarted = false;
-        stopButton = false;
+void lamps() {
+    if (engineRunning && ignition == ON) {
+        leftLowBeamLamp = ON;
+        rightLowBeamLamp = ON;
+    } else if (!engineRunning) {
+        leftLowBeamLamp = OFF;
+        rightLowBeamLamp = OFF;
     }
 }
