@@ -2,6 +2,9 @@
 
 #include "mbed.h"
 
+#include "ignition.h"
+#include "windshield_wiper.h"
+
 //=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
