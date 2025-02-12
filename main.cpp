@@ -13,12 +13,9 @@ DigitalIn driverInSeat(D5);
 DigitalIn passengerSeatbelt(D6);
 DigitalIn driverSeatbelt(D7);
 AnalogIn potentiometer(A0);
-AnalogIn lightResistor(A1);
 
 DigitalOut ignitionEnabled(LED1);
 DigitalOut engineStarted(LED2);
-DigitalOut leftLowBeamLamp(D8);
-DigitalOut rightLowBeamLamp(D9);
 DigitalInOut buzzer(PE_10);
 
 UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
@@ -27,9 +24,6 @@ UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
 
 bool driverSeated;
 int waitForStop = 0;
-
-float lightReadings[NUM_READINGS];
-int i = 0;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -40,10 +34,6 @@ void driverCheck();
 void seatbeltCheck();
 void engineStart();
 void engineStop();
-void headlightUpdate();
-float lightSensorAvg();
-
-void lightSensorSample();
 
 //=====[Main function, the program entry point after power on or reset]========
 
@@ -66,12 +56,6 @@ int main()
 
         // Stops engine if ignition is pressed and released
         engineStop();
-
-        // Updates the state of the headlights
-        headlightUpdate();
-
-        // Takes a reading from the light resistor
-        lightSensorSample();
     }
 }
 
@@ -169,50 +153,4 @@ void engineStop() {
         default: 
             break;
     }
-}
-
-void headlightUpdate() {
-    if (engineStarted == ON) {
-        if (potentiometer.read() < 0.33) {
-            leftLowBeamLamp = 0;
-            rightLowBeamLamp = 0;
-        } else if (potentiometer.read() >= 0.33 && potentiometer.read() < 0.66) {
-            if (lightSensorAvg() < .56) {
-                leftLowBeamLamp = 0;
-                rightLowBeamLamp = 0;
-            } else {
-                leftLowBeamLamp = 1;
-                rightLowBeamLamp = 1;
-            }
-        } else {
-            leftLowBeamLamp = 1;
-            rightLowBeamLamp = 1;
-        }
-    } else {
-        leftLowBeamLamp = 0;
-        rightLowBeamLamp = 0;
-    }
-}
-
-void lightSensorSample() {
-    float lightReadingsTotal;
-    float lightReadingsAvg;
-
-    if (i == NUM_READINGS - 1) {
-        i = 0;
-    } else {
-        i++;
-    }
-
-    lightReadings[i] = lightResistor.read();
-}
-
-float lightSensorAvg() {
-    float total = 0;
-
-    for (int j = 0; j < NUM_READINGS; j++) {
-        total += lightReadings[j];
-    } 
-
-    return total / NUM_READINGS;
 }
