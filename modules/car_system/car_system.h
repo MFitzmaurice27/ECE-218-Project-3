@@ -9,6 +9,9 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
+void carSystemInit();
+void carSystemUpdate();
+
 //=====[#include guards - end]=================================================
 
 #endif // _CAR_SYSTEM_H_
