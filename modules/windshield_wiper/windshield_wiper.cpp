@@ -53,6 +53,7 @@ void windshieldWiperInit() {
 
 void windshieldWiperUpdate() {
     if (!engineStarted) {
+        displayWiperMode("OFF", "");
         wiperServo.write(DUTY_MIN);
         if (accumulatedDisplayTime >= DISPLAY_UPDATE_INTERVAL) {
             displayWiperMode("OFF", "");
