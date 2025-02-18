@@ -9,7 +9,7 @@
 //=====[Constants]============================================================
 
 #define DUTY_MIN 0.05
-#define DUTY_MAX 0.096527778
+#define DUTY_MAX 0.080
 #define PERIOD 0.02 // Period in seconds
 
 #define INT_SHORT_DELAY 2000
