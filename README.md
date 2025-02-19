@@ -2,8 +2,8 @@
 James Dwyer and Michael Fitzmaurice
 
 ## System Behavior
-This is a car system which has the windshield wiper functionality included. \n
-When the driver and passenger are seated, and they have their seatbelts fastened, the engine is able to be started with the ignition button. If any of these conditions are not met when the ignition button is pressed, the alarm will go off, but the user can still fulfil all of the conditions and start the engine after the alarm goes off. \n
+This is a car system which has the windshield wiper functionality included. /n
+When the driver and passenger are seated, and they have their seatbelts fastened, the engine is able to be started with the ignition button. If any of these conditions are not met when the ignition button is pressed, the alarm will go off, but the user can still fulfil all of the conditions and start the engine after the alarm goes off. /n
 As long as the engine is started, the windshield wiper system can be used.
 
 ## Design Alternatives
