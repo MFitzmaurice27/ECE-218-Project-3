@@ -24,9 +24,6 @@ PwmOut wiperServo(D15);
 AnalogIn modeSelector(A0);
 AnalogIn intSelector(A1);
 
-//Timer displayTimer;
-//Timer wiperTimer;
-
 //=====[Global Variables]=====================================================
 
 extern DigitalOut engineStarted;
@@ -40,14 +37,13 @@ static void returnToZero();
 static void displayWiperMode(const char* mode, const char* delay);
 static float readModeSelector();
 static float readIntSelector();
+static void servoSpeed(int speedDelay); // Renamed function prototype
 
 //=====[Function Implementations]=============================================
 
 void windshieldWiperInit() {
     wiperServo.period(PERIOD);
     wiperServo.write(DUTY_MIN);
-    //displayTimer.start();
-    //wiperTimer.start();
     displayWiperMode("OFF", "");
 }
 
@@ -75,10 +71,10 @@ void windshieldWiperUpdate() {
         returnToZero();
     } else if (modeValue < 0.5) {
         mode = "LO";
-        cycleTime = 1500;
+        cycleTime = 1750; // Slow speed for LO mode
     } else if (modeValue < 0.75) {
         mode = "HI";
-        cycleTime = 500;
+        cycleTime = 500; // Fast speed for HI mode
     } else {
         mode = "INT";
         if (intValue < 0.33) {
@@ -91,26 +87,17 @@ void windshieldWiperUpdate() {
             delayTime = INT_LONG_DELAY;
             delay = "LONG";
         }
-        cycleTime = 1500;
+        cycleTime = 1500; // Default speed for INT mode
     }
 
     if (accumulatedWiperTime >= cycleTime && mode != "INT") {
         accumulatedWiperTime = 0;
-        //wiperState = !wiperState;
-        //if (wiperState) {
-            wiperServo.write(DUTY_MAX);
-            delay(500);
-            wiperServo.write(DUTY_MIN);
-        //} else {
-        //    wiperServo.write(DUTY_MIN);
-        //}
+        servoSpeed(cycleTime); // Use servoSpeed to control speed based on mode
     }
 
     if (mode == "INT" && !wiperState && accumulatedWiperTime >= delayTime) {
         accumulatedWiperTime = 0;
-        wiperServo.write(DUTY_MAX);
-        delay(500);
-        wiperServo.write(DUTY_MIN);
+        servoSpeed(cycleTime); // Use servoSpeed for INT mode
     }
 
     if (accumulatedDisplayTime >= DISPLAY_UPDATE_INTERVAL) {
@@ -147,4 +134,13 @@ static void displayWiperMode(const char* mode, const char* delay) {
         displayStringWrite(delay);
     }
     printf("Wiper Mode: %s, Delay: %s\n", mode, delay);
+}
+
+// added function for Speed
+
+static void servoSpeed(int speedDelay) {
+    wiperServo.write(DUTY_MAX); // Move to maximum position
+    delay(speedDelay / 2);       // Delay for half the cycle time
+    wiperServo.write(DUTY_MIN); // Move to minimum position
+    delay(speedDelay / 2);       // Delay for half the cycle time
 }
