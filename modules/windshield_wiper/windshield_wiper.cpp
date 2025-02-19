@@ -12,9 +12,9 @@
 #define DUTY_MAX 0.080
 #define PERIOD 0.02 // Period in seconds
 
-#define INT_SHORT_DELAY 2000
-#define INT_MEDIUM_DELAY 4000
-#define INT_LONG_DELAY 6000
+#define INT_SHORT_DELAY 1500
+#define INT_MEDIUM_DELAY 3750
+#define INT_LONG_DELAY 5500
 
 #define DISPLAY_UPDATE_INTERVAL 200 // Reduced display refresh time
 
@@ -114,7 +114,7 @@ static void displayWiperMode(const char* mode, const char* delay) {
         displayStringWrite("Delay: ");
         displayStringWrite(delay);
     }
-    printf("Wiper Mode: %s, Delay: %s\n", mode, delay);
+    //printf("Wiper Mode: %s, Delay: %s\n", mode, delay);
 }
 
 // added function for Speed
