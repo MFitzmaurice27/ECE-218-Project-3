@@ -64,7 +64,7 @@ void windshieldWiperUpdate() {
         wiperServo.write(DUTY_MIN);
     } else if (modeValue < 0.5) {
         mode = "LO";
-        cycleTime = 1750; // Slow speed for LO mode
+        cycleTime = 1000; // Slow speed for LO mode
     } else if (modeValue < 0.75) {
         mode = "HI";
         cycleTime = 500; // Fast speed for HI mode
@@ -80,7 +80,7 @@ void windshieldWiperUpdate() {
             delayTime = INT_LONG_DELAY;
             delay = "LONG";
         }
-        cycleTime = 1500; // Default speed for INT mode
+        cycleTime = 1000; // Default speed for INT mode
     }
 
     if (accumulatedWiperTime >= cycleTime && mode != "INT") {
