@@ -33,10 +33,7 @@ int accumulatedDisplayTime = 0;
 
 //=====[Function Prototypes]==================================================
 
-static void returnToZero();
 static void displayWiperMode(const char* mode, const char* delay);
-static float readModeSelector();
-static float readIntSelector();
 static void servoSpeed(int speedDelay); // Renamed function prototype
 
 //=====[Function Implementations]=============================================
@@ -51,15 +48,11 @@ void windshieldWiperUpdate() {
     if (!engineStarted) {
         displayWiperMode("OFF", "");
         wiperServo.write(DUTY_MIN);
-        if (accumulatedDisplayTime >= DISPLAY_UPDATE_INTERVAL) {
-            displayWiperMode("OFF", "");
-            accumulatedDisplayTime = 0;
-        }
         return;
     }
 
-    float modeValue = readModeSelector();
-    float intValue = readIntSelector();
+    float modeValue = modeSelector.read();
+    float intValue = intSelector.read();
     
     const char* mode;
     const char* delay = "";
@@ -68,7 +61,7 @@ void windshieldWiperUpdate() {
 
     if (modeValue < 0.25) {
         mode = "OFF";
-        returnToZero();
+        wiperServo.write(DUTY_MIN);
     } else if (modeValue < 0.5) {
         mode = "LO";
         cycleTime = 1750; // Slow speed for LO mode
@@ -110,18 +103,6 @@ void windshieldWiperUpdate() {
 }
 
 //=====[Private Function Implementations]=====================================
-
-static void returnToZero() {
-    wiperServo.write(DUTY_MIN);
-}
-
-static float readModeSelector() {
-    return modeSelector.read();
-}
-
-static float readIntSelector() {
-    return intSelector.read();
-}
 
 static void displayWiperMode(const char* mode, const char* delay) {
     displayClear();
