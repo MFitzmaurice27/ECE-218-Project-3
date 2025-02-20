@@ -64,6 +64,7 @@ void ignitionInit() {
 
 //=====[Implementations of private functions]==================================
 
+// Checks if the driver is in their seat
 void driverCheck() {
     if (driverInSeat && !driverSeated && !engineStarted) {
         uartUsb.write("Welcome to enhanced alarm system model 218-W24\n", 47);
@@ -75,6 +76,7 @@ void driverCheck() {
     }
 }
 
+// Checks if both seatbelts are fastened and seats are filled
 void seatbeltCheck() {
     if (driverInSeat && passengerInSeat && driverSeatbelt && passengerSeatbelt && !engineStarted) {
         ignitionEnabled = ON;
@@ -83,6 +85,7 @@ void seatbeltCheck() {
     }
 }
 
+// Starts the engine if all conditions are met and ignition is pressed, sounds the alarm otherwise
 void engineStart() {
     if (ignitionEnabled == ON && ignition == ON) {
         engineStarted = ON;
@@ -116,6 +119,7 @@ void engineStart() {
     }
 }
 
+// Stops the engine if its already running and the ignition is pressed and released
 void engineStop() {
     switch (waitForStop) {
         case 1: 
