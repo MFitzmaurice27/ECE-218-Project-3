@@ -104,6 +104,7 @@ void windshieldWiperUpdate() {
 
 //=====[Private Function Implementations]=====================================
 
+// Desiplays the current wiper mode on the LCD display
 static void displayWiperMode(const char* mode, const char* delay) {
     displayClear();
     displayCharPositionWrite(0, 0);
@@ -119,6 +120,7 @@ static void displayWiperMode(const char* mode, const char* delay) {
 
 // added function for Speed
 
+// Turns the servo the necessary speed dependant on the wiper mode
 static void servoSpeed(int speedDelay) {
     wiperServo.write(DUTY_MAX); // Move to maximum position
     delay(speedDelay / 2);       // Delay for half the cycle time
